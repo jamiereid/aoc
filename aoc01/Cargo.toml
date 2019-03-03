@@ -1,0 +1,8 @@
+[package]
+name = "aoc01"
+version = "0.1.0"
+authors = ["Jamie Reid <jamie@jre.id.au>"]
+edition = "2018"
+
+[dependencies]
+failure = "0.1.5"
