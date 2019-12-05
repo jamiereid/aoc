@@ -5,8 +5,8 @@ if [ $# != 1 ]; then
     exit 1
 fi
 
-if [ ! -d .git ]; then
-    echo "must be run from root of advent-of-code repository" >&2
+if [ ${PWD##*/} != "2018" ]; then
+    echo "must be run from root of 2018 directory in aoc repository" >&2
     exit 1
 fi
 
