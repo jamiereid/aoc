@@ -14,3 +14,4 @@ fi
 
 name="$(printf "aoc%02d" "$1")"
 cp -r .template "$name"
+cd "$name"
