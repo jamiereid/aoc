@@ -68,22 +68,6 @@ class IntcodeComputer():
         self.wraddr(r_addr, func(self.readaddr(a_addr), self.readaddr(b_addr)))
 
 
-def dop2(tape, needle, max_noun, max_verb):
-    for n in range(0, 99):
-        for v in range(0, 99):
-            comp = IntcodeComputer(p1_iset)
-            comp.memload(tape)
-            comp.mempatch([(1, n), (2, v)])
-            comp.setpointer(0)
-            comp.run()
-
-            if comp.memdump()[0] == needle:
-                comp.shutdown()
-                return {'noun': n, 'verb': v}
-    return None
-
-
-
 p1_iset = {
     1:  (lambda a, b : a + b),
     2:  (lambda a, b : a * b),
@@ -106,16 +90,24 @@ def solve_part_one(tape, do_patch = False):
 
 def solve_part_two(tape):
     needle = 19690720
-    m = 99
+    max_noun = 99
+    max_verb = 99
 
-    out = dop2(tape, needle, m, m)
+    for n in range(0, max_noun + 1):
+        for v in range(0, max_verb + 1):
+            comp = IntcodeComputer(p1_iset)
+            comp.memload(tape)
+            comp.mempatch([(1, n), (2, v)])
+            comp.setpointer(0)
+            comp.run()
 
-    if out != None:
-        answer = {'value': 100 * out['noun'] * out['verb'],
-                  'noun': out['noun'],
-                  'verb': out['verb']}
-    else:
-        answer = "Fail"
+            if comp.memdump()[0] == needle:
+                comp.shutdown()
+                noun = n
+                verb = v
+                break
+
+    answer = {'value': 100 * noun + verb, 'noun': noun, 'verb': verb}
     return answer
 
 
