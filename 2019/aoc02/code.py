@@ -2,7 +2,7 @@
 # Start: 2019-12-09 10:54
 
 import os
-import inspect
+import copy
 
 class IntcodeComputer():
     def __init__(self, instruction_set):
@@ -22,10 +22,7 @@ class IntcodeComputer():
         if (self._memptr + 4) > self._maxmemsize:
             raise StopIteration()
 
-        self._current_inst = tuple([self._memory[self._memptr],
-                                    self._memory[self._memptr + 1],
-                                    self._memory[self._memptr + 2],
-                                    self._memory[self._memptr + 3]])
+        self._current_inst = tuple(self._memory[self._memptr:self._memptr + 4])
         self._memptr += 4
         return self._current_inst
 
@@ -39,7 +36,7 @@ class IntcodeComputer():
         self._memory[addr] = value
 
     def memload(self, tape):
-        self._memory = tape
+        self._memory = copy.deepcopy(tape)
         self._maxmemsize = len(self._memory)
 
     def mempatch(self, patch):
@@ -53,15 +50,16 @@ class IntcodeComputer():
         for inst in iter(self):
             self._do_instruction(inst)
 
+    def shutdown(self):
+        del self
+
     def step(self):
-        inst = tuple([self._memory[self._memptr],
-                      self._memory[self._memptr + 1],
-                      self._memory[self._memptr + 2],
-                      self._memory[self._memptr + 3]])
+        inst = tuple(self._memory[self._memptr:self._memptr + 4])
         self._memptr += 4
         self._do_instruction(inst)
 
     def _do_instruction(self, inst):
+        #print(f'inst={inst}')
         (opcode, a_addr, b_addr, r_addr) = inst
 
         func = self._instruction_set.get(opcode, "HALT")
@@ -70,25 +68,54 @@ class IntcodeComputer():
         self.wraddr(r_addr, func(self.readaddr(a_addr), self.readaddr(b_addr)))
 
 
+def dop2(tape, needle, max_noun, max_verb):
+    for n in range(0, 99):
+        for v in range(0, 99):
+            comp = IntcodeComputer(p1_iset)
+            comp.memload(tape)
+            comp.mempatch([(1, n), (2, v)])
+            comp.setpointer(0)
+            comp.run()
+
+            if comp.memdump()[0] == needle:
+                comp.shutdown()
+                return {'noun': n, 'verb': v}
+    return None
+
+
+
+p1_iset = {
+    1:  (lambda a, b : a + b),
+    2:  (lambda a, b : a * b),
+    99: "HALT"
+}
+
 def solve_part_one(tape, do_patch = False):
     patch = [(1, 12), (2, 2)] # r1=12, r2=2
-    p1_iset = {
-        1:  (lambda a, b : a + b),
-        2:  (lambda a, b : a * b),
-        99: "HALT"
-    }
 
     comp = IntcodeComputer(p1_iset)
     comp.memload(tape)
     if do_patch:  comp.mempatch(patch)
     comp.setpointer(0)
     comp.run()
+    mem = comp.memdump()
+    comp.shutdown()
 
-    return comp.memdump()
+    return mem
 
 
 def solve_part_two(tape):
-    answer = []
+    needle = 19690720
+    m = 99
+
+    out = dop2(tape, needle, m, m)
+
+    if out != None:
+        answer = {'value': 100 * out['noun'] * out['verb'],
+                  'noun': out['noun'],
+                  'verb': out['verb']}
+    else:
+        answer = "Fail"
     return answer
 
 
