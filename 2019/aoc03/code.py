@@ -1,61 +1,72 @@
-# Advent of Code 2019 - Day X
-# Start: datetime
+# Advent of Code 2019 - Day 3
+# Start: 2019-12-11 08:54
 
 import os
-import svgwrite
+
+class Point():
+    def __init__(self, x, y):
+        self.px = x
+        self.py = y
+
+    @property
+    def x(self):
+        return self.px
+
+    @property
+    def y(self):
+        return self.py
+
+    def distance_to_origin(self):
+        return abs(self.px) + abs(self.py)
+
+    def __str__(self):
+        return '({}, {})'.format(self.px, self.py)
+
+    def __repr__(self):
+        return 'Point({}, {})'.format(self.px, self.py)
+
+    def __add__(self, other):
+        return Point(self.px + other.x, self.py + other.y)
+
+    def __hash__(self):
+        return hash(repr(self))
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return ((self.px == other.x) and (self.py == other.y))
+        else:
+            return False
 
 
-CSS = """
-    .grid { stroke: firebrick; stroke-width: .1mm; }
-    .background { fill: black; }
-"""
+direction = {'U': Point(1, 0),
+             'R': Point(0, 1),
+             'D': Point(-1, 0),
+             'L': Point(0, -1)}
 
-def group(drawobj, grpname):
-    return drawobj.add(drawobj.g(class_=grpname))
-
-def visualise():
-    outfile = 'part_one.svg'
-    grid_squared = 10
-    viewbox_max = 80
-    world_size=("10cm", "10cm")
-    unit = int(world_size[0].replace('cm','')) / viewbox_max
-
-    dwg = svgwrite.Drawing(outfile, size=world_size)
-    dwg.viewbox(0, 0, viewbox_max, viewbox_max)
-    dwg.defs.add(dwg.style(CSS))
-
-    dwg.add(dwg.rect(size=("100%", "100%"), class_='background'))
-
-    # Draw grid
-    lines = group(dwg, "grid")
-    for i in range(grid_squared - 1):
-        y = i * grid_squared
-        lines.add(dwg.line(start=(0, y), end=(viewbox_max, y)))
-        x = i * grid_squared
-        lines.add(dwg.line(start=(x, 0), end=(x, viewbox_max)))
-
-    dwg.save()
 
 def solve_part_one(input):
-    # input is array of array of line instructions
-    move = {'U': "u",
-            'D': "d",
-            'L': "l",
-            'R': "r"}
 
-    print(input)
-    print(f'type={type(input[0])}')
+    origin = Point(0,0)
+    instructions = {k:[{'vector': direction[i[0]], 'amount': int(i[1:])} for i in line.split(',')]
+                    for k, line in enumerate(input.splitlines())}
+    wires = {k:[origin] for k in range(len(input.splitlines()))}
 
-    # YOU WERE TIRED. YOU HAVE NOT SPLIT ON , YET.
+    # Build a list of Points for each wire
+    for i, wire in wires.items():
+        for inst in instructions[i]:
+            for x in range(inst['amount']):
+                cc = wire[-1]  # current coord
+                #print(f'cc: {cc}, append: {cc+inst["vector"]}')
+                wire.append(cc + inst['vector'])
 
-    def do(x):
-        action = move[x[0]]
-        amount = x[1:]
-        print(f'action:{action}, amount:{amount}')
+    # Build a list of intersections
+    tmpset = set(wires[1])
+    intersections = [i for i in wires[0] if i in tmpset and i != origin]  # @Hardcoded: assumes only two wires
 
-    [do(x) for x in input[0]]
+    # Find closest intersection to origin
+    md = [i.distance_to_origin() for i in intersections]
+    answer = min(md)
 
-    answer = 0
     return str(answer)
 
 
@@ -68,7 +79,6 @@ if __name__ == '__main__':
     with open((os.path.abspath(__file__).rstrip('code.py')+'input.txt'),
               'r') as input_file:
         input = input_file.read()
-    ins = [[line] for line in input.splitlines()]
 
-    print(f'Part One: {solve_part_one(ins)}')
-    print(f'Part Two: {solve_part_two(ins)}')
+    print(f'Part One: {solve_part_one(input)}')
+    print(f'Part Two: {solve_part_two(input)}')
