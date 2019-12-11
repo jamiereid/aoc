@@ -24,15 +24,13 @@ def is_candidate(passwd):
 
 
 def additional_check(passwd):
-    ret = False
     spasswd = str(passwd)
 
     for i in range(len(spasswd) - 1):
         if spasswd[i] * 2 in spasswd and not spasswd[i] * 3 in spasswd:
-            ret = True
-            break
+            return True
 
-    return ret
+    return False
 
 
 def solve_part_one(input):
