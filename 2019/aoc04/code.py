@@ -34,18 +34,18 @@ def additional_check(passwd):
 
 
 def solve_part_one(input):
-    min, max = input[0].split('-')
+    min, max = map(int, input[0].split('-'))
 
-    meets_criteria = [p for p in range(int(min), int(max)) if is_candidate(p)]
+    meets_criteria = [p for p in range(min, max) if is_candidate(p)]
 
     answer = len(meets_criteria)  # 1665
     return str(answer)
 
 
 def solve_part_two(input):
-    min, max = input[0].split('-')
+    min, max = map(int, input[0].split('-'))
 
-    meets_criteria = [p for p in range(int(min), int(max))
+    meets_criteria = [p for p in range(min, max)
                       if is_candidate(p) and additional_check(p)]
 
     answer = len(meets_criteria)  # 1131
