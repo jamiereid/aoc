@@ -38,13 +38,11 @@ class Point():
             return False
 
 
-direction = {'U': Point(1, 0),
-             'R': Point(0, 1),
-             'D': Point(-1, 0),
-             'L': Point(0, -1)}
-
-
-def solve_part_one(input):
+def process(input):
+    direction = {'U': Point(1, 0),
+                 'R': Point(0, 1),
+                 'D': Point(-1, 0),
+                 'L': Point(0, -1)}
 
     origin = Point(0,0)
     instructions = {k:[{'vector': direction[i[0]], 'amount': int(i[1:])} for i in line.split(',')]
@@ -63,6 +61,12 @@ def solve_part_one(input):
     tmpset = set(wires[1])
     intersections = [i for i in wires[0] if i in tmpset and i != origin]  # @Hardcoded: assumes only two wires
 
+    return wires, intersections
+
+
+def solve_part_one(input):
+    wires, intersections = input
+
     # Find closest intersection to origin
     md = [i.distance_to_origin() for i in intersections]
     answer = min(md)
@@ -71,14 +75,40 @@ def solve_part_one(input):
 
 
 def solve_part_two(input):
-    answer = 0
+    wires, intersections = input
+
+    steps = {}
+    c = 0
+    for i, wire in wires.items():
+        for point in wire:
+            c += 1
+            if point in intersections:
+
+                # if we've already recorded a visit continue
+                if repr(point) in steps:
+                    if i in steps[repr(point)]:
+                        continue
+                else:
+                    steps[repr(point)] = {}
+
+                steps[repr(point)][i] = c
+                c = 0
+
+    #totals = [p[0][1] + p[1][1] for p in steps.values()]  # @Hardcoded: assumes only two wires.
+    totals = [p[0] + p[1] for p in steps.values()]  # @Hardcoded: assumes only two wires.
+    print(steps)
+
+    print(totals)
+    answer = min(totals)
+
+    #answer =0
     return str(answer)
 
 
 if __name__ == '__main__':
     with open((os.path.abspath(__file__).rstrip('code.py')+'input.txt'),
               'r') as input_file:
-        input = input_file.read()
+        input = process(input_file.read())
 
     print(f'Part One: {solve_part_one(input)}')
     print(f'Part Two: {solve_part_two(input)}')
