@@ -77,31 +77,13 @@ def solve_part_one(input):
 def solve_part_two(input):
     wires, intersections = input
 
-    steps = {}
-    c = 0
-    for i, wire in wires.items():
-        for point in wire:
-            c += 1
-            if point in intersections:
+    ds = []
+    for x in intersections:
+        s1 = wires[0].index(x)
+        s2 = wires[1].index(x)
+        ds.append(s1 + s2)
 
-                # if we've already recorded a visit continue
-                if repr(point) in steps:
-                    if i in steps[repr(point)]:
-                        continue
-                else:
-                    steps[repr(point)] = {}
-
-                steps[repr(point)][i] = c
-                c = 0
-
-    #totals = [p[0][1] + p[1][1] for p in steps.values()]  # @Hardcoded: assumes only two wires.
-    totals = [p[0] + p[1] for p in steps.values()]  # @Hardcoded: assumes only two wires.
-    print(steps)
-
-    print(totals)
-    answer = min(totals)
-
-    #answer =0
+    answer = min(ds)
     return str(answer)
 
 
