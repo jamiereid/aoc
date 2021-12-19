@@ -12,5 +12,5 @@ fi
 
 
 
-name="$(printf "aoc%02d" "$1")"
+name="$(printf "aoc%02d-python" "$1")"
 cp -r .template "$name"
